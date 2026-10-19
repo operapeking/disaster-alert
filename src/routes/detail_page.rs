@@ -922,7 +922,7 @@ mod tests {
     fn event(source: &str) -> DisasterEvent {
         DisasterEvent {
             category: DisasterCategory::EarthquakeWarning,
-            channel: ProviderChannel::FanStudio,
+            channel: ProviderChannel::Cenc,
             source: source.to_string(),
             event_id: format!("{source}-event"),
             revision: "1".to_string(),

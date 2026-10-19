@@ -44,8 +44,8 @@ fn subscription(index: usize) -> Subscription {
 fn event() -> DisasterEvent {
     DisasterEvent {
         category: DisasterCategory::EarthquakeReport,
-        channel: ProviderChannel::FanStudio,
-        source: "fanstudio.cenc".to_string(),
+        channel: ProviderChannel::Cenc,
+        source: "cenc.report".to_string(),
         event_id: "bench-event".to_string(),
         revision: "1".to_string(),
         report_num: 1,

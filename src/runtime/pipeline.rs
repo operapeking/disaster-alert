@@ -1559,9 +1559,9 @@ mod tests {
 
         let accepted = runtime
             .submit_provider_batch(
-                ProviderChannel::FanStudio,
+                ProviderChannel::Cenc,
                 vec![valid, invalid],
-                ProviderCursor::new("cenc", "cursor-1")?,
+                ProviderCursor::new("report", "cursor-1")?,
             )
             .await;
 
@@ -1569,7 +1569,7 @@ mod tests {
         anyhow::ensure!(storage.inner().pending_inbox(1)?.is_empty());
         anyhow::ensure!(
             runtime
-                .provider_cursors(ProviderChannel::FanStudio, vec!["cenc".to_string()])
+                .provider_cursors(ProviderChannel::Cenc, vec!["report".to_string()])
                 .await?
                 .is_empty()
         );
@@ -1810,8 +1810,8 @@ mod tests {
     fn test_delivery_event(report_num: u32, title: &str) -> DisasterEvent {
         DisasterEvent {
             category: DisasterCategory::EarthquakeReport,
-            channel: ProviderChannel::FanStudio,
-            source: "fanstudio.cenc".to_string(),
+            channel: ProviderChannel::Cenc,
+            source: "cenc.report".to_string(),
             event_id: "delivery-engine-order".to_string(),
             revision: report_num.to_string(),
             report_num,

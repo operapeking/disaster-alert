@@ -531,7 +531,6 @@
     .region-editor { overflow: hidden; transition: opacity .18s ease; }
     .region-editor[hidden] { display: none; }
     .region-editor-inner { padding: 12px 0 2px; }
-    .region-editor-note { margin-top: 8px; }
     .config-disclosure[open] > summary::after { content: "−"; transform: rotate(90deg); }
     .config-disclosure-body {
       padding: 0 13px 13px;
@@ -868,10 +867,10 @@
                 <span id="status-wolfx-meta" class="status-source-meta">尚未获取数据</span>
               </div>
               <div class="status-source">
-                <span id="status-fanstudio-dot" class="dot"></span>
-                <span class="status-source-name">FAN Studio</span>
-                <span id="status-fanstudio-state" class="status-source-state">未知</span>
-                <span id="status-fanstudio-meta" class="status-source-meta">尚未获取数据</span>
+                <span id="status-cenc-dot" class="dot"></span>
+                <span class="status-source-name">中国地震台网</span>
+                <span id="status-cenc-state" class="status-source-state">未知</span>
+                <span id="status-cenc-meta" class="status-source-meta">尚未获取数据</span>
               </div>
               <div class="status-source">
                 <span id="status-huania-dot" class="dot"></span>
@@ -956,7 +955,6 @@
                         <label class="input-label" for="city">城市<input id="city" type="text" maxlength="80" placeholder="可选" /></label>
                         <label class="input-label" for="district">区/县<input id="district" type="text" maxlength="80" placeholder="可选" /></label>
                       </div>
-                      <small class="region-editor-note">填写行政区可提高气象预警覆盖，并用于海啸区域匹配。</small>
                     </div>
                   </div>
                 </div>
@@ -989,7 +987,7 @@
       </form>
     </section>
     <footer>
-      <p>数据来源：<a href="https://ws-api.wolfx.jp">Wolfx.jp</a> · <a href="https://api.fanstudio.tech/doc/ws-api/#home">FAN Studio</a> · <a href="https://mobile-new.chinaeew.cn/v1/">Huania</a>　开源项目：<a href="https://github.com/noctiro/disaster-alert">GitHub · noctiro/disaster-alert</a></p>
+      <p>数据来源：<a href="https://ws-api.wolfx.jp">Wolfx.jp</a> · <a href="https://www.cenc.ac.cn/">中国地震台网</a> · <a href="https://mobile-new.chinaeew.cn/v1/">Huania</a>　开源项目：<a href="https://github.com/noctiro/disaster-alert">GitHub · noctiro/disaster-alert</a></p>
       <p>本服务仅用于灾害信息转发与个人提醒，数据可能延迟、缺失或误报，不构成官方预警或安全决策依据。请以所在地政府、应急管理部门及权威机构发布的信息为准，并遵从现场指引。</p>
     </footer>
   </main>
@@ -1041,9 +1039,9 @@
     const statusWolfxDot = document.querySelector("#status-wolfx-dot");
     const statusWolfxState = document.querySelector("#status-wolfx-state");
     const statusWolfxMeta = document.querySelector("#status-wolfx-meta");
-    const statusFanstudioDot = document.querySelector("#status-fanstudio-dot");
-    const statusFanstudioState = document.querySelector("#status-fanstudio-state");
-    const statusFanstudioMeta = document.querySelector("#status-fanstudio-meta");
+    const statusCencDot = document.querySelector("#status-cenc-dot");
+    const statusCencState = document.querySelector("#status-cenc-state");
+    const statusCencMeta = document.querySelector("#status-cenc-meta");
     const statusHuaniaDot = document.querySelector("#status-huania-dot");
     const statusHuaniaState = document.querySelector("#status-huania-state");
     const statusHuaniaMeta = document.querySelector("#status-huania-meta");
@@ -2590,7 +2588,7 @@
     function setStatusDetailsUnknown() {
       statusUpdated.textContent = "暂时无法获取";
       setStatusSource(statusWolfxDot, statusWolfxState, statusWolfxMeta, null);
-      setStatusSource(statusFanstudioDot, statusFanstudioState, statusFanstudioMeta, null);
+      setStatusSource(statusCencDot, statusCencState, statusCencMeta, null);
       setStatusSource(statusHuaniaDot, statusHuaniaState, statusHuaniaMeta, null);
       statusSubscriptions.textContent = "--";
       statusPending.textContent = "--";
@@ -2623,7 +2621,7 @@
           return;
         }
 
-        const sources = [data.wolfx, data.fanstudio, data.huania];
+        const sources = [data.wolfx, data.cenc, data.huania];
         const connectedSources = sources
           .filter((source) => source?.connected === true).length;
         const sourceLabel = connectedSources === sources.length
@@ -2640,7 +2638,7 @@
           state,
         );
         const wolfxNotifications = setStatusSource(statusWolfxDot, statusWolfxState, statusWolfxMeta, data.wolfx);
-        const fanstudioNotifications = setStatusSource(statusFanstudioDot, statusFanstudioState, statusFanstudioMeta, data.fanstudio);
+        const cencNotifications = setStatusSource(statusCencDot, statusCencState, statusCencMeta, data.cenc);
         const huaniaNotifications = setStatusSource(statusHuaniaDot, statusHuaniaState, statusHuaniaMeta, data.huania);
         const durable = data.durable && typeof data.durable === "object" ? data.durable : {};
         const readyQueues = data.ready_queues && typeof data.ready_queues === "object" ? data.ready_queues : {};
@@ -2648,8 +2646,8 @@
         statusUpdated.textContent = `更新于 ${formatStatusTime(Date.now())}`;
         statusSubscriptions.textContent = formatStatusCount(data.total_subscriptions);
         statusPending.textContent = formatStatusCount(pending);
-        statusDelivered.textContent = formatStatusCount(wolfxNotifications.delivered + fanstudioNotifications.delivered + huaniaNotifications.delivered);
-        statusFailed.textContent = formatStatusCount(wolfxNotifications.failed + fanstudioNotifications.failed + huaniaNotifications.failed);
+        statusDelivered.textContent = formatStatusCount(wolfxNotifications.delivered + cencNotifications.delivered + huaniaNotifications.delivered);
+        statusFailed.textContent = formatStatusCount(wolfxNotifications.failed + cencNotifications.failed + huaniaNotifications.failed);
         statusBacklog.textContent = `事件 ${formatStatusCount(durable.inbox_pending)} · 匹配 ${formatStatusCount(durable.match_jobs_pending)} · 投递 ${formatStatusCount(durable.delivery_batches_pending)} · 重试 ${formatStatusCount(durable.retries_pending)} · 订阅确认 ${formatStatusCount(durable.subscription_confirmations_pending)}；内存队列 事件 ${formatStatusCount(readyQueueDepth("inbox"))} · 匹配 ${formatStatusCount(readyQueueDepth("matching"))} · 投递 ${formatStatusCount(readyQueueDepth("delivery"))}`;
       } catch {
         setServiceStatus("状态未知");

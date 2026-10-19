@@ -7,8 +7,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[derive(Clone, Default)]
 pub(crate) struct RuntimeStatus {
     wolfx: Arc<ChannelMetrics>,
-    fanstudio: Arc<ChannelMetrics>,
+    cenc: Arc<ChannelMetrics>,
     huania: Arc<ChannelMetrics>,
+    archived: Arc<ChannelMetrics>,
     inbox_ready: Arc<ReadyQueueMetrics>,
     match_ready: Arc<ReadyQueueMetrics>,
     delivery_ready: Arc<ReadyQueueMetrics>,
@@ -28,7 +29,7 @@ pub(crate) struct ChannelMetrics {
 #[derive(Serialize)]
 pub(crate) struct RuntimeStatusSnapshot {
     pub(crate) wolfx: ChannelSnapshot,
-    pub(crate) fanstudio: ChannelSnapshot,
+    pub(crate) cenc: ChannelSnapshot,
     pub(crate) huania: ChannelSnapshot,
     pub(crate) durable: DurableBacklogSnapshot,
     pub(crate) ready_queues: ReadyQueuesSnapshot,
@@ -79,8 +80,9 @@ impl RuntimeStatus {
     pub(crate) fn channel(&self, channel: ProviderChannel) -> &ChannelMetrics {
         match channel {
             ProviderChannel::Wolfx => &self.wolfx,
-            ProviderChannel::FanStudio => &self.fanstudio,
+            ProviderChannel::Cenc => &self.cenc,
             ProviderChannel::Huania => &self.huania,
+            ProviderChannel::Archived => &self.archived,
         }
     }
 
@@ -88,8 +90,8 @@ impl RuntimeStatus {
         &self.wolfx
     }
 
-    pub(crate) fn fanstudio(&self) -> &ChannelMetrics {
-        &self.fanstudio
+    pub(crate) fn cenc(&self) -> &ChannelMetrics {
+        &self.cenc
     }
 
     pub(crate) fn huania(&self) -> &ChannelMetrics {
@@ -99,7 +101,7 @@ impl RuntimeStatus {
     pub(crate) fn snapshot(&self, durable: DurableBacklogSnapshot) -> RuntimeStatusSnapshot {
         RuntimeStatusSnapshot {
             wolfx: self.wolfx.snapshot(),
-            fanstudio: self.fanstudio.snapshot(),
+            cenc: self.cenc.snapshot(),
             huania: self.huania.snapshot(),
             durable,
             ready_queues: ReadyQueuesSnapshot {

@@ -829,8 +829,8 @@ mod tests {
     fn event() -> DisasterEvent {
         DisasterEvent {
             category: DisasterCategory::EarthquakeWarning,
-            channel: ProviderChannel::FanStudio,
-            source: "fanstudio.jma".to_string(),
+            channel: ProviderChannel::Wolfx,
+            source: "wolfx.jma_eew".to_string(),
             event_id: "event-42".to_string(),
             revision: "3".to_string(),
             report_num: 3,
@@ -911,7 +911,7 @@ mod tests {
     #[test]
     fn signed_url_round_trip_preserves_recipient_context() -> Result<()> {
         let service = service([7; 32])?.service;
-        let incident = IncidentId::derive("fanstudio.jma:event-42");
+        let incident = IncidentId::derive("wolfx.jma_eew:event-42");
         let url = create_url(&service, incident.clone())?;
         anyhow::ensure!(token(&url).split('.').count() == 2);
         let snapshot = service.verify(&incident, token(&url))?;
@@ -963,7 +963,7 @@ mod tests {
     #[test]
     fn retries_reuse_the_same_context_url() -> Result<()> {
         let service = service([14; 32])?.service;
-        let incident = IncidentId::derive("fanstudio.jma:event-42");
+        let incident = IncidentId::derive("wolfx.jma_eew:event-42");
         let create = || {
             service.create_url_for(NotificationContextInput {
                 incident_id: &incident,

@@ -617,14 +617,14 @@ components:
     Status:
       type: object
       additionalProperties: false
-      required: [total_subscriptions, wolfx, fanstudio, huania, durable, ready_queues]
+      required: [total_subscriptions, wolfx, cenc, huania, durable, ready_queues]
       properties:
         total_subscriptions:
           type: integer
           minimum: 0
         wolfx:
           $ref: "#/components/schemas/ChannelStatus"
-        fanstudio:
+        cenc:
           $ref: "#/components/schemas/ChannelStatus"
         huania:
           $ref: "#/components/schemas/ChannelStatus"

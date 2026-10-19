@@ -404,7 +404,7 @@ mod tests {
     fn event(source: &str, report_num: u32) -> DisasterEvent {
         DisasterEvent {
             category: DisasterCategory::EarthquakeWarning,
-            channel: ProviderChannel::FanStudio,
+            channel: ProviderChannel::Cenc,
             source: source.to_string(),
             event_id: format!("{source}-event"),
             revision: report_num.to_string(),

@@ -1,4 +1,4 @@
-use crate::providers::{FanStudioSource, HuaniaSource, WolfxSource};
+use crate::providers::{CencSource, HuaniaSource, WolfxSource};
 use crate::runtime::EventRuntime;
 use crate::storage::Storage;
 use crate::subscriptions::SubscriptionConfirmationService;
@@ -15,7 +15,7 @@ pub(crate) struct RuntimeServices {
     event_runtime: EventRuntime,
     subscription_confirmations: SubscriptionConfirmationService,
     wolfx: WolfxSource,
-    fanstudio: FanStudioSource,
+    cenc: CencSource,
     huania: HuaniaSource,
 }
 
@@ -25,7 +25,7 @@ impl RuntimeServices {
         event_runtime: EventRuntime,
         subscription_confirmations: SubscriptionConfirmationService,
         wolfx: WolfxSource,
-        fanstudio: FanStudioSource,
+        cenc: CencSource,
         huania: HuaniaSource,
     ) -> Self {
         Self {
@@ -33,7 +33,7 @@ impl RuntimeServices {
             event_runtime,
             subscription_confirmations,
             wolfx,
-            fanstudio,
+            cenc,
             huania,
         }
     }
@@ -49,7 +49,7 @@ enum TaskKind {
     EventRuntime,
     SubscriptionConfirmations,
     Wolfx,
-    FanStudio,
+    Cenc,
     Huania,
 }
 
@@ -99,7 +99,7 @@ struct ManagedTasks {
     event_runtime: ManagedTask,
     subscription_confirmations: ManagedTask,
     wolfx: ManagedTask,
-    fanstudio: ManagedTask,
+    cenc: ManagedTask,
     huania: ManagedTask,
 }
 
@@ -109,7 +109,7 @@ impl ManagedTasks {
         event_runtime: JoinHandle<TaskResult>,
         subscription_confirmations: JoinHandle<TaskResult>,
         wolfx: JoinHandle<TaskResult>,
-        fanstudio: JoinHandle<TaskResult>,
+        cenc: JoinHandle<TaskResult>,
         huania: JoinHandle<TaskResult>,
     ) -> Self {
         Self {
@@ -117,7 +117,7 @@ impl ManagedTasks {
             event_runtime: ManagedTask::new(event_runtime),
             subscription_confirmations: ManagedTask::new(subscription_confirmations),
             wolfx: ManagedTask::new(wolfx),
-            fanstudio: ManagedTask::new(fanstudio),
+            cenc: ManagedTask::new(cenc),
             huania: ManagedTask::new(huania),
         }
     }
@@ -128,7 +128,7 @@ impl ManagedTasks {
             TaskKind::EventRuntime => self.event_runtime.mark_completed(),
             TaskKind::SubscriptionConfirmations => self.subscription_confirmations.mark_completed(),
             TaskKind::Wolfx => self.wolfx.mark_completed(),
-            TaskKind::FanStudio => self.fanstudio.mark_completed(),
+            TaskKind::Cenc => self.cenc.mark_completed(),
             TaskKind::Huania => self.huania.mark_completed(),
         }
     }
@@ -138,7 +138,7 @@ impl ManagedTasks {
             && self.event_runtime.completed
             && self.subscription_confirmations.completed
             && self.wolfx.completed
-            && self.fanstudio.completed
+            && self.cenc.completed
             && self.huania.completed
     }
 
@@ -146,7 +146,7 @@ impl ManagedTasks {
         self.server.completed
             && self.subscription_confirmations.completed
             && self.wolfx.completed
-            && self.fanstudio.completed
+            && self.cenc.completed
             && self.huania.completed
     }
 
@@ -156,14 +156,14 @@ impl ManagedTasks {
             event_runtime_result,
             confirmation_result,
             wolfx_result,
-            fanstudio_result,
+            cenc_result,
             huania_result,
         ) = tokio::join!(
             self.server.abort_and_reap(),
             self.event_runtime.abort_and_reap(),
             self.subscription_confirmations.abort_and_reap(),
             self.wolfx.abort_and_reap(),
-            self.fanstudio.abort_and_reap(),
+            self.cenc.abort_and_reap(),
             self.huania.abort_and_reap(),
         );
         let mut errors = Vec::new();
@@ -171,7 +171,7 @@ impl ManagedTasks {
         collect_task_result(event_runtime_result, &mut errors);
         collect_task_result(confirmation_result, &mut errors);
         collect_task_result(wolfx_result, &mut errors);
-        collect_task_result(fanstudio_result, &mut errors);
+        collect_task_result(cenc_result, &mut errors);
         collect_task_result(huania_result, &mut errors);
         finish_task_results(errors)
     }
@@ -241,7 +241,7 @@ pub(crate) async fn run_until_shutdown(
         event_runtime,
         subscription_confirmations,
         wolfx,
-        fanstudio,
+        cenc,
         huania,
     } = services;
     let mut shutdown_signals = ShutdownSignals::new()?;
@@ -281,13 +281,12 @@ pub(crate) async fn run_until_shutdown(
             .context("Wolfx provider failed")?;
         Ok("Wolfx provider")
     });
-    let fanstudio_shutdown = provider_shutdown_receiver.clone();
-    let fanstudio_task = tokio::spawn(async move {
-        fanstudio
-            .run(fanstudio_shutdown)
+    let cenc_shutdown = provider_shutdown_receiver.clone();
+    let cenc_task = tokio::spawn(async move {
+        cenc.run(cenc_shutdown)
             .await
-            .context("Fan Studio provider failed")?;
-        Ok("Fan Studio provider")
+            .context("CENC provider failed")?;
+        Ok("CENC provider")
     });
     let huania_task = tokio::spawn(async move {
         huania
@@ -301,7 +300,7 @@ pub(crate) async fn run_until_shutdown(
         event_runtime_task,
         subscription_confirmation_task,
         wolfx_task,
-        fanstudio_task,
+        cenc_task,
         huania_task,
     );
 
@@ -323,9 +322,9 @@ pub(crate) async fn run_until_shutdown(
             unexpected_task_completion(result),
             Some(TaskKind::Wolfx),
         ),
-        result = &mut tasks.fanstudio.handle => (
+        result = &mut tasks.cenc.handle => (
             unexpected_task_completion(result),
-            Some(TaskKind::FanStudio),
+            Some(TaskKind::Cenc),
         ),
         result = &mut tasks.huania.handle => (
             unexpected_task_completion(result),
@@ -403,7 +402,7 @@ async fn drain_ingress_tasks(
         let event_runtime_pending = !tasks.event_runtime.completed;
         let confirmations_pending = !tasks.subscription_confirmations.completed;
         let wolfx_pending = !tasks.wolfx.completed;
-        let fanstudio_pending = !tasks.fanstudio.completed;
+        let cenc_pending = !tasks.cenc.completed;
         let huania_pending = !tasks.huania.completed;
         tokio::select! {
             result = &mut tasks.server.handle, if server_pending => {
@@ -419,8 +418,8 @@ async fn drain_ingress_tasks(
             result = &mut tasks.wolfx.handle, if wolfx_pending => {
                 tasks.wolfx.collect_completion(result, &mut errors);
             }
-            result = &mut tasks.fanstudio.handle, if fanstudio_pending => {
-                tasks.fanstudio.collect_completion(result, &mut errors);
+            result = &mut tasks.cenc.handle, if cenc_pending => {
+                tasks.cenc.collect_completion(result, &mut errors);
             }
             result = &mut tasks.huania.handle, if huania_pending => {
                 tasks.huania.collect_completion(result, &mut errors);
@@ -467,7 +466,7 @@ async fn drain_pipeline_tasks(
         let event_runtime_pending = !tasks.event_runtime.completed;
         let confirmations_pending = !tasks.subscription_confirmations.completed;
         let wolfx_pending = !tasks.wolfx.completed;
-        let fanstudio_pending = !tasks.fanstudio.completed;
+        let cenc_pending = !tasks.cenc.completed;
         let huania_pending = !tasks.huania.completed;
         tokio::select! {
             result = &mut tasks.server.handle, if server_pending => {
@@ -482,8 +481,8 @@ async fn drain_pipeline_tasks(
             result = &mut tasks.wolfx.handle, if wolfx_pending => {
                 tasks.wolfx.collect_completion(result, &mut errors);
             }
-            result = &mut tasks.fanstudio.handle, if fanstudio_pending => {
-                tasks.fanstudio.collect_completion(result, &mut errors);
+            result = &mut tasks.cenc.handle, if cenc_pending => {
+                tasks.cenc.collect_completion(result, &mut errors);
             }
             result = &mut tasks.huania.handle, if huania_pending => {
                 tasks.huania.collect_completion(result, &mut errors);

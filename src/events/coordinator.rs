@@ -203,9 +203,9 @@ mod tests {
         let directory = tempfile::tempdir()?;
         let first_id = {
             let storage = FjallStorage::open(directory.path())?;
-            let mut first = test_event("fanstudio.cenc", "first");
-            first.channel = ProviderChannel::FanStudio;
-            storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![first], None)?;
+            let mut first = test_event("cenc.report", "first");
+            first.channel = ProviderChannel::Cenc;
+            storage.ingest_with_cursor(ProviderChannel::Cenc, vec![first], None)?;
             let job = EventCoordinator::new(storage.clone())
                 .process_next()?
                 .context("missing first job")?;
@@ -213,13 +213,14 @@ mod tests {
             job.incident_id
         };
         let storage = FjallStorage::open(directory.path())?;
-        let mut second = test_event("fanstudio.usgs", "second");
-        second.channel = ProviderChannel::FanStudio;
+        let mut second = test_event("wolfx.cenc_eew", "second");
+        second.category = DisasterCategory::EarthquakeWarning;
+        second.channel = ProviderChannel::Wolfx;
         second.latitude = Some(35.05);
         second.longitude = Some(105.05);
         second.magnitude = Some(5.4);
         second.occurred_at = "2026-07-13T00:01:00Z".to_string();
-        storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![second], None)?;
+        storage.ingest_with_cursor(ProviderChannel::Wolfx, vec![second], None)?;
         let second_job = EventCoordinator::new(storage.clone())
             .process_next()?
             .context("missing second job")?;
@@ -233,12 +234,12 @@ mod tests {
     fn replay_consumes_inbox_without_creating_another_match_job() -> Result<()> {
         let directory = tempfile::tempdir()?;
         let storage = FjallStorage::open(directory.path())?;
-        let event = test_event("fanstudio.cenc", "same");
-        storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![event.clone()], None)?;
+        let event = test_event("cenc.report", "same");
+        storage.ingest_with_cursor(ProviderChannel::Cenc, vec![event.clone()], None)?;
         let coordinator = EventCoordinator::new(storage.clone());
         let first = coordinator.process_next()?.context("missing first job")?;
         commit_matched_job(&storage, &first)?;
-        storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![event], None)?;
+        storage.ingest_with_cursor(ProviderChannel::Cenc, vec![event], None)?;
         anyhow::ensure!(coordinator.process_next()?.is_none());
         anyhow::ensure!(storage.pending_inbox(1)?.is_empty());
         anyhow::ensure!(storage.pending_match_jobs(1)?.is_empty());
@@ -257,16 +258,16 @@ mod tests {
             },
         );
         storage.ingest_with_cursor(
-            ProviderChannel::FanStudio,
-            vec![test_event("fanstudio.cenc", "same")],
+            ProviderChannel::Cenc,
+            vec![test_event("cenc.report", "same")],
             None,
         )?;
         let first = coordinator.process_next()?.context("missing first job")?;
         commit_matched_job(&storage, &first)?;
-        let mut update = test_event("fanstudio.cenc", "same");
+        let mut update = test_event("cenc.report", "same");
         update.report_num = 2;
         update.revision = "2".to_string();
-        storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![update], None)?;
+        storage.ingest_with_cursor(ProviderChannel::Cenc, vec![update], None)?;
         anyhow::ensure!(coordinator.process_next()?.is_none());
         let incident = storage
             .incident(&first.incident_id)?
@@ -304,10 +305,10 @@ mod tests {
         for (policy, mutate) in cases {
             let directory = tempfile::tempdir()?;
             let storage = FjallStorage::open(directory.path())?;
-            let mut event = test_event("fanstudio.cenc", "policy-skipped");
+            let mut event = test_event("cenc.report", "policy-skipped");
             mutate(&mut event);
             let incident_id = crate::models::IncidentId::derive(&event.event_key());
-            storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![event], None)?;
+            storage.ingest_with_cursor(ProviderChannel::Cenc, vec![event], None)?;
 
             let job = EventCoordinator::with_policy(storage.clone(), policy).process_next()?;
 
@@ -351,10 +352,10 @@ mod tests {
         let directory = tempfile::tempdir()?;
         let storage = FjallStorage::open(directory.path())?;
         let coordinator = EventCoordinator::new(storage.clone());
-        let mut current = test_event("fanstudio.cenc", "same");
+        let mut current = test_event("cenc.report", "same");
         for update in 0..=16 {
             current.title = format!("correction-{update}");
-            storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![current.clone()], None)?;
+            storage.ingest_with_cursor(ProviderChannel::Cenc, vec![current.clone()], None)?;
             drop(coordinator.process_next()?);
         }
         anyhow::ensure!(storage.pending_inbox(1)?.is_empty());
@@ -362,7 +363,7 @@ mod tests {
 
         current.report_num = 2;
         current.revision = "2".to_string();
-        storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![current], None)?;
+        storage.ingest_with_cursor(ProviderChannel::Cenc, vec![current], None)?;
         anyhow::ensure!(coordinator.process_next()?.is_some());
         anyhow::ensure!(storage.pending_inbox(1)?.is_empty());
         Ok(())
@@ -371,7 +372,7 @@ mod tests {
     fn test_event(source: &str, event_id: &str) -> DisasterEvent {
         DisasterEvent {
             category: DisasterCategory::EarthquakeReport,
-            channel: ProviderChannel::FanStudio,
+            channel: ProviderChannel::Cenc,
             source: source.to_string(),
             event_id: event_id.to_string(),
             revision: "1".to_string(),

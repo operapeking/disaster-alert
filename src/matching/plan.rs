@@ -112,8 +112,8 @@ mod tests {
     fn event(category: DisasterCategory) -> DisasterEvent {
         DisasterEvent {
             category,
-            channel: ProviderChannel::FanStudio,
-            source: "fanstudio.typhoon".to_string(),
+            channel: ProviderChannel::Cenc,
+            source: "test.typhoon".to_string(),
             event_id: "event".to_string(),
             revision: "1".to_string(),
             report_num: 1,

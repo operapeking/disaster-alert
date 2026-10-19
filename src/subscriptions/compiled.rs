@@ -210,11 +210,18 @@ impl SubscriptionCompiler {
 }
 
 pub(crate) fn source_id(value: &str) -> SourceId {
-    crate::source_registry::SOURCES
-        .iter()
-        .position(|source| source.id == value)
-        .and_then(|index| u16::try_from(index.saturating_add(1)).ok())
-        .map_or(UNKNOWN_SOURCE_ID, SourceId)
+    // 持久化订阅使用固定编号，新增或移除来源时保持已有编号。
+    match value {
+        "wolfx.jma_eew" => SourceId(1),
+        "wolfx.sc_eew" => SourceId(2),
+        "wolfx.cenc_eew" => SourceId(3),
+        "wolfx.fj_eew" => SourceId(4),
+        "wolfx.cq_eew" => SourceId(5),
+        "huania.earlywarning" => SourceId(31),
+        "cenc.warning" => SourceId(32),
+        "cenc.report" => SourceId(33),
+        _ => UNKNOWN_SOURCE_ID,
+    }
 }
 
 impl SubscriptionId {
@@ -333,7 +340,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn source_ids_are_registry_ordinals_with_a_reserved_unknown_value() {
+    fn source_ids_are_stable_with_a_reserved_unknown_value() {
+        assert_eq!(source_id("wolfx.cenc_eew"), SourceId(3));
+        assert_eq!(source_id("huania.earlywarning"), SourceId(31));
+        assert_eq!(source_id("cenc.warning"), SourceId(32));
+        assert_eq!(source_id("cenc.report"), SourceId(33));
         let ids = crate::source_registry::SOURCES
             .iter()
             .map(|source| source_id(source.id))

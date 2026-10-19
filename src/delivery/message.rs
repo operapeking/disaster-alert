@@ -336,7 +336,7 @@ mod tests {
     fn event(category: DisasterCategory) -> DisasterEvent {
         DisasterEvent {
             category,
-            channel: ProviderChannel::FanStudio,
+            channel: ProviderChannel::Cenc,
             source: "internal.provider.channel".to_string(),
             event_id: "internal-event-id".to_string(),
             revision: "internal-revision".to_string(),
@@ -434,7 +434,7 @@ mod tests {
             "internal.provider.channel",
             "internal-event-id",
             "internal-revision",
-            "FanStudio",
+            "Cenc",
             "来源：",
             "渠道：",
         ] {

@@ -2029,7 +2029,8 @@ fn cursor_key(provider: ProviderChannel, stream: &str) -> Vec<u8> {
     key.extend_from_slice(b"cursor:");
     key.push(match provider {
         ProviderChannel::Wolfx => 1,
-        ProviderChannel::FanStudio => 2,
+        ProviderChannel::Cenc => 4,
+        ProviderChannel::Archived => 2,
         ProviderChannel::Huania => 3,
     });
     key.push(b':');
@@ -2431,7 +2432,7 @@ mod tests {
         category: DisasterCategory,
     ) -> Subscription {
         let source = test_source(category, random.index(3));
-        let sources = if random.index(2) == 0 {
+        let sources = if random.index(2) == 0 || source.category != category {
             SourceSelection::All
         } else {
             SourceSelection::Include {
@@ -2551,7 +2552,11 @@ mod tests {
             .iter()
             .filter(|source| source.category == category)
             .collect::<Vec<_>>();
-        sources[offset % sources.len()]
+        if sources.is_empty() {
+            &crate::source_registry::SOURCES[0]
+        } else {
+            sources[offset % sources.len()]
+        }
     }
 
     fn delivery_row(destination: u64) -> DeliveryRow {
@@ -2802,11 +2807,7 @@ mod tests {
         let directory = tempfile::tempdir()?;
         {
             let storage = FjallStorage::open(directory.path())?;
-            storage.ingest_with_cursor(
-                ProviderChannel::FanStudio,
-                vec![correlated_event()],
-                None,
-            )?;
+            storage.ingest_with_cursor(ProviderChannel::Cenc, vec![correlated_event()], None)?;
             storage.persist()?;
         }
 
@@ -2904,8 +2905,8 @@ mod tests {
     fn correlated_event() -> DisasterEvent {
         DisasterEvent {
             category: DisasterCategory::EarthquakeReport,
-            channel: ProviderChannel::FanStudio,
-            source: "fanstudio.cenc".to_string(),
+            channel: ProviderChannel::Cenc,
+            source: "cenc.report".to_string(),
             event_id: "retention-event".to_string(),
             revision: "1".to_string(),
             report_num: 1,
@@ -2929,7 +2930,7 @@ mod tests {
     fn unmatched_result_removes_incident_event_and_reverse_indexes() -> Result<()> {
         let directory = tempfile::tempdir()?;
         let storage = FjallStorage::open(directory.path())?;
-        storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![correlated_event()], None)?;
+        storage.ingest_with_cursor(ProviderChannel::Cenc, vec![correlated_event()], None)?;
         let job = EventCoordinator::new(storage.clone())
             .process_next()?
             .context("missing match job")?;
@@ -2958,7 +2959,7 @@ mod tests {
         let mut second = first.clone();
         second.report_num = 2;
         second.revision = "2".to_string();
-        storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![first, second], None)?;
+        storage.ingest_with_cursor(ProviderChannel::Cenc, vec![first, second], None)?;
         let coordinator = EventCoordinator::new(storage.clone());
         let first_job = coordinator.process_next()?.context("missing first job")?;
         let second_job = coordinator.process_next()?.context("missing second job")?;
@@ -2981,7 +2982,7 @@ mod tests {
         let directory = tempfile::tempdir()?;
         let storage = FjallStorage::open(directory.path())?;
         let first = correlated_event();
-        storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![first.clone()], None)?;
+        storage.ingest_with_cursor(ProviderChannel::Cenc, vec![first.clone()], None)?;
         let coordinator = EventCoordinator::new(storage.clone());
         let first_job = coordinator.process_next()?.context("missing first job")?;
         let batch = DeliveryBatch {
@@ -3003,7 +3004,7 @@ mod tests {
         let mut update = first;
         update.report_num = 2;
         update.revision = "2".to_string();
-        storage.ingest_with_cursor(ProviderChannel::FanStudio, vec![update], None)?;
+        storage.ingest_with_cursor(ProviderChannel::Cenc, vec![update], None)?;
         let second_job = coordinator.process_next()?.context("missing second job")?;
         storage.commit_match_batches(second_job.id, &[])?;
 

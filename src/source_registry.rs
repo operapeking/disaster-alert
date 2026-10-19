@@ -105,253 +105,23 @@ pub(crate) const SOURCES: &[SourceDefinition] = &[
         Some(8 * 3600)
     ),
     source!(
-        "fanstudio.cea",
-        "cea",
-        FanStudio,
+        "cenc.warning",
+        "warning",
+        Cenc,
         EarthquakeWarning,
-        "fanstudio-earthquake-warning",
-        "FAN Studio 地震预警",
-        "中国地震预警网",
+        "cenc-earthquake-warning",
+        "中国地震台网地震预警",
+        "中国地震台网",
         Some(8 * 3600)
     ),
     source!(
-        "fanstudio.cea-pr",
-        "cea-pr",
-        FanStudio,
-        EarthquakeWarning,
-        "fanstudio-earthquake-warning",
-        "FAN Studio 地震预警",
-        "中国地震预警网省级网",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.cwa-eew",
-        "cwa-eew",
-        FanStudio,
-        EarthquakeWarning,
-        "fanstudio-earthquake-warning",
-        "FAN Studio 地震预警",
-        "台湾气象署预警",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.jma",
-        "jma",
-        FanStudio,
-        EarthquakeWarning,
-        "fanstudio-earthquake-warning",
-        "FAN Studio 地震预警",
-        "日本气象厅预警",
-        Some(9 * 3600)
-    ),
-    source!(
-        "fanstudio.sa",
-        "sa",
-        FanStudio,
-        EarthquakeWarning,
-        "fanstudio-earthquake-warning",
-        "FAN Studio 地震预警",
-        "ShakeAlert",
-        None
-    ),
-    source!(
-        "fanstudio.kma-eew",
-        "kma-eew",
-        FanStudio,
-        EarthquakeWarning,
-        "fanstudio-earthquake-warning",
-        "FAN Studio 地震预警",
-        "韩国气象厅预警",
-        Some(9 * 3600)
-    ),
-    source!(
-        "fanstudio.cenc",
-        "cenc",
-        FanStudio,
+        "cenc.report",
+        "report",
+        Cenc,
         EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "中国地震台网测定",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.ningxia",
-        "ningxia",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "宁夏地震局",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.guangxi",
-        "guangxi",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "广西地震局",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.shanxi",
-        "shanxi",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "山西地震局",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.beijing",
-        "beijing",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "北京地震局",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.yunnan",
-        "yunnan",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "云南地震局",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.cwa",
-        "cwa",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "台湾气象署报告",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.hko",
-        "hko",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "香港天文台",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.usgs",
-        "usgs",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "USGS",
-        None
-    ),
-    source!(
-        "fanstudio.emsc",
-        "emsc",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "EMSC",
-        None
-    ),
-    source!(
-        "fanstudio.bcsf",
-        "bcsf",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "BCSF",
-        None
-    ),
-    source!(
-        "fanstudio.gfz",
-        "gfz",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "GFZ",
-        None
-    ),
-    source!(
-        "fanstudio.usp",
-        "usp",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "USP",
-        None
-    ),
-    source!(
-        "fanstudio.kma",
-        "kma",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "韩国气象厅报告",
-        Some(9 * 3600)
-    ),
-    source!(
-        "fanstudio.fssn",
-        "fssn",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "FSSN",
-        None
-    ),
-    source!(
-        "fanstudio.fssn-cmt",
-        "fssn-cmt",
-        FanStudio,
-        EarthquakeReport,
-        "fanstudio-earthquake-report",
-        "地震信息",
-        "FSSN CMT",
-        None
-    ),
-    source!(
-        "fanstudio.weatheralarm",
-        "weatheralarm",
-        FanStudio,
-        WeatherWarning,
-        "fanstudio-weather-warning",
-        "气象预警",
-        "中国气象局气象预警",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.tsunami",
-        "tsunami",
-        FanStudio,
-        Tsunami,
-        "fanstudio-tsunami",
-        "海啸",
-        "自然资源部海啸预警中心",
-        Some(8 * 3600)
-    ),
-    source!(
-        "fanstudio.typhoon",
-        "typhoon",
-        FanStudio,
-        Typhoon,
-        "fanstudio-typhoon",
-        "台风",
-        "中国气象局活跃台风",
+        "cenc-earthquake-report",
+        "中国地震台网地震速报",
+        "中国地震台网",
         Some(8 * 3600)
     ),
     source!(
@@ -382,6 +152,7 @@ pub(crate) fn find_provider(
 pub(crate) fn category_options() -> Vec<CategoryOption> {
     DisasterCategory::ALL
         .into_iter()
+        .filter(|category| SOURCES.iter().any(|source| source.category == *category))
         .map(|category| {
             let mut source_groups = Vec::<SourceGroup>::new();
             for source in SOURCES.iter().filter(|source| source.category == category) {
@@ -460,18 +231,8 @@ mod tests {
     #[test]
     fn source_time_contracts_are_declared_in_the_registry() {
         assert_eq!(default_utc_offset_seconds("wolfx.jma_eew"), Some(32_400));
-        assert_eq!(
-            default_utc_offset_seconds("fanstudio.weatheralarm"),
-            Some(28_800)
-        );
-        assert_eq!(default_utc_offset_seconds("fanstudio.usgs"), None);
-        assert_eq!(
-            default_utc_offset_seconds("fanstudio.tsunami"),
-            Some(28_800)
-        );
-        assert_eq!(
-            default_utc_offset_seconds("fanstudio.typhoon"),
-            Some(28_800)
-        );
+        assert_eq!(default_utc_offset_seconds("cenc.warning"), Some(28_800));
+        assert_eq!(default_utc_offset_seconds("cenc.report"), Some(28_800));
+        assert_eq!(default_utc_offset_seconds("huania.earlywarning"), None);
     }
 }
