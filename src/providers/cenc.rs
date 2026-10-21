@@ -10,7 +10,7 @@ use tokio::sync::watch;
 const APP_ID: &str = "dkcxbftqof0h";
 const VERSION_URL: &str = "https://yjfw.cenc.ac.cn/api/earthquake/event/v1/version";
 const LIST_URL: &str = "https://dzyj.cenc.ac.cn/api/earthquake/event/cdn/v1/list";
-const POLL_INTERVAL: Duration = Duration::from_secs(3);
+const POLL_INTERVAL: Duration = Duration::from_secs(2);
 const PAGE_SIZE: usize = 20;
 const MAX_RESPONSE_BYTES: usize = 1024 * 1024;
 

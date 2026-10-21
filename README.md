@@ -18,21 +18,11 @@
 
 地震波到达时间由起震时间、距离、深度和配置的波速估算。震级不改变传播时间，但会影响监测点的预计烈度；预计烈度未命中订阅规则时不会发送通知。
 
-中国地震台网提供 `cenc.warning`（地震预警）和 `cenc.report`（地震速报）。服务每 3 秒查询版本号，版本变化后读取对应列表的最新 20 条事件。首次接入建立历史基线，随后推送新增或修订的事件；读取进度随事件保存，服务重启后继续处理。接口使用公开应用标识，部署时无需配置账号或令牌。
+中国地震台网每 2 秒轮询一次，提供地震预警和地震速报。
 
 ## 部署
 
-### GitHub Container Registry 镜像
-
-GitHub Actions 使用项目的 `Dockerfile` 构建 `linux/amd64` 镜像，并发布到 `ghcr.io/operapeking/disaster-alert`。推送到 `main` 分支会发布 `latest`、`main` 和 `sha-<提交摘要>` 标签；推送 `v*` 版本标签会发布同名镜像标签和提交摘要标签。也可以在 GitHub Actions 中手动运行 **Build and publish container image** 工作流。
-
-拉取主分支的最新镜像：
-
-```bash
-docker pull --platform linux/amd64 ghcr.io/operapeking/disaster-alert:latest
-```
-
-工作流通过 GitHub 自动提供的 `GITHUB_TOKEN` 登录 GHCR。构建缓存保存在 GitHub Actions 中，拉取请求会执行镜像构建验证。
+GitHub Actions 自动构建并发布 `linux/amd64` 镜像：`ghcr.io/operapeking/disaster-alert:latest`。
 
 ### Docker Compose（推荐）
 
